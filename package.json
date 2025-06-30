@@ -1,0 +1,24 @@
+{
+  "name": "flare1",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+  },
+  "dependencies": {
+    "@cloudflare/workers-types": "^4.20250628.0",
+    "@types/node": "^24.0.7",
+    "dotenv": "^17.0.0",
+    "drizzle-orm": "^0.44.2",
+    "hono": "^4.8.3",
+    "pg": "^8.16.3",
+    "postgres": "^3.4.7",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.4",
+    "drizzle-kit": "^0.31.4",
+    "tsx": "^4.20.3",
+    "wrangler": "^4.4.0"
+  }
+}
