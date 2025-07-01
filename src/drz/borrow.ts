@@ -1,6 +1,7 @@
 import { z } from "zod/v4";
 import { Context } from "hono";
 import { and, eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { type Ctx } from "../ctx-types";
 import { booksTable, borrowTable, usersTable } from "../db/schema";
 
@@ -8,7 +9,7 @@ import { booksTable, borrowTable, usersTable } from "../db/schema";
  * List all users borrowing which books with borrow date
 */
 export async function listBorrows(c: Context<Ctx, never, {}>) {
-  const db = c.get("db");
+  const db = drizzle(c.env.HYPERDRIVE.connectionString);
   const borrows = await db.select({
     user_name: usersTable.name,
     book_title: booksTable.title,
@@ -18,6 +19,7 @@ export async function listBorrows(c: Context<Ctx, never, {}>) {
     .innerJoin(usersTable, eq(borrowTable.user_id, usersTable.id))
     .innerJoin(booksTable, eq(borrowTable.book_id, booksTable.id));
 
+  await db.$client.end();
   return c.json(borrows);
 }
 
@@ -35,7 +37,7 @@ export async function getBorrowById(c: Context<Ctx, never, {}>) {
     return c.json({ error: "Invalid Book ID" }, 400);
   }
   
-  const db = c.get("db");
+  const db = drizzle(c.env.HYPERDRIVE.connectionString);
   const borrow = await db.select({
     user_name: usersTable.name,
     book_title: booksTable.title,
@@ -46,6 +48,7 @@ export async function getBorrowById(c: Context<Ctx, never, {}>) {
     .innerJoin(booksTable, eq(borrowTable.book_id, booksTable.id))
     .where(and(eq(borrowTable.user_id, userId), eq(borrowTable.book_id, bookId)));
 
+  await db.$client.end();
   return c.json(borrow[0] || {});
 }
 
@@ -58,7 +61,7 @@ export async function getBorrowByUserId(c: Context<Ctx, never, {}>) {
     return c.json({ error: "Invalid User ID" }, 400);
   }
 
-  const db = c.get("db");
+  const db = drizzle(c.env.HYPERDRIVE.connectionString);
   const borrow = await db.select({
     user_name: usersTable.name,
     book_title: booksTable.title,
@@ -69,6 +72,7 @@ export async function getBorrowByUserId(c: Context<Ctx, never, {}>) {
     .innerJoin(booksTable, eq(borrowTable.book_id, booksTable.id))
     .where(eq(borrowTable.user_id, userId));
 
+  await db.$client.end();
   return c.json(borrow);
 }
 
@@ -81,7 +85,7 @@ export async function getBorrowByBookId(c: Context<Ctx, never, {}>) {
     return c.json({ error: "Invalid Book ID" }, 400);
   }
 
-  const db = c.get("db");
+  const db = drizzle(c.env.HYPERDRIVE.connectionString);
   const borrow = await db.select({
     user_name: usersTable.name,
     book_title: booksTable.title,
@@ -92,6 +96,7 @@ export async function getBorrowByBookId(c: Context<Ctx, never, {}>) {
     .innerJoin(booksTable, eq(borrowTable.book_id, booksTable.id))
     .where(eq(borrowTable.book_id, bookId));
 
+  await db.$client.end();
   return c.json(borrow);
 }
 
@@ -110,8 +115,9 @@ export async function createBorrow(c: Context<Ctx, never, {}>) {
     return c.json({ error: parsed.error.message }, 400);
   }
 
-  const db = c.get("db");
+  const db = drizzle(c.env.HYPERDRIVE.connectionString);
   await db.insert(borrowTable).values(parsed.data);
+  await db.$client.end();
 
   return c.json({ message: "Successful" }, 201);
 }

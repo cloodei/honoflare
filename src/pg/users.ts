@@ -1,12 +1,12 @@
+import { z } from "zod/v4";
 import { Context } from "hono";
 import { pgClient } from "../db/db";
-import { z } from "zod/v4";
-import { Hyperdrive } from "@cloudflare/workers-types";
+import { type Ctx } from "../ctx-types";
 
 /**
  * List all users
 */
-export async function listUsers(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive } }>) {
+export async function listUsers(c: Context<Ctx, never, {}>) {
   const sql = await pgClient(c.env.HYPERDRIVE.connectionString);
   const res = await sql.query('SELECT * FROM "USERS"');
 
@@ -17,7 +17,7 @@ export async function listUsers(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive 
 /**
  * Get a user by ID, return an empty object if not found
 */
-export async function getUserById(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive } }>) {
+export async function getUserById(c: Context<Ctx, never, {}>) {
   const sql = await pgClient(c.env.HYPERDRIVE.connectionString);
   const id = Number(c.req.param("id"));
 
@@ -34,7 +34,7 @@ export async function getUserById(c: Context<{ Bindings: { HYPERDRIVE: Hyperdriv
 /**
  * Create a new user
 */
-export async function createUser(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive } }>) {
+export async function createUser(c: Context<Ctx, never, {}>) {
   const [sql, body] = await Promise.all([
     pgClient(c.env.HYPERDRIVE.connectionString),
     c.req.json()
@@ -62,7 +62,7 @@ export async function createUser(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive
 /**
  * Update a user by ID
 */
-export async function updateUser(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive } }>) {
+export async function updateUser(c: Context<Ctx, never, {}>) {
   const [sql, body] = await Promise.all([
     pgClient(c.env.HYPERDRIVE.connectionString),
     c.req.json()
@@ -95,7 +95,7 @@ export async function updateUser(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive
 /**
  * Delete a user by ID
 */
-export async function deleteUser(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive } }>) {
+export async function deleteUser(c: Context<Ctx, never, {}>) {
   const sql = await pgClient(c.env.HYPERDRIVE.connectionString);
   const id = Number(c.req.param("id"));
 

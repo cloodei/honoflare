@@ -1,5 +1,6 @@
 import { z } from "zod/v4"
 import { eq } from "drizzle-orm"
+import { drizzle } from "drizzle-orm/postgres-js"
 import { Context } from "hono"
 import { type Ctx } from "../ctx-types"
 import { booksTable } from "../db/schema"
@@ -8,7 +9,7 @@ import { booksTable } from "../db/schema"
  * List all books
 */
 export async function listBooks(c: Context<Ctx, never, {}>) {
-  const db = c.get("db");
+  const db = drizzle(c.env.HYPERDRIVE.connectionString);
   try {
     const books = await db.select({
       title: booksTable.title,
@@ -18,9 +19,11 @@ export async function listBooks(c: Context<Ctx, never, {}>) {
       publish_date: booksTable.publish_date,
     }).from(booksTable);
 
+    await db.$client.end();
     return c.json(books);
   }
   catch (error) {
+    await db.$client.end();
     return c.json({ error: "Internal Server Error" }, 500);
   }
 }
@@ -34,7 +37,7 @@ export async function getBookById(c: Context<Ctx, never, {}>) {
     return c.json({ error: "Invalid ID" }, 400);
   }
 
-  const db = c.get("db");
+  const db = drizzle(c.env.HYPERDRIVE.connectionString);
   try {
     const book = await db.select({
       title: booksTable.title,
@@ -44,9 +47,11 @@ export async function getBookById(c: Context<Ctx, never, {}>) {
       publish_date: booksTable.publish_date,
     }).from(booksTable).where(eq(booksTable.id, id));
 
+    await db.$client.end();
     return c.json(book[0] || {});
   }
   catch (error) {
+    await db.$client.end();
     return c.json({ error: "Internal Server Error" }, 500);
   }
 }
@@ -68,12 +73,15 @@ export async function createBook(c: Context<Ctx, never, {}>) {
     return c.json({ error: parsed.error.message }, 400);
   }
 
-  const db = c.get("db");
+  const db = drizzle(c.env.HYPERDRIVE.connectionString);
   try {
     await db.insert(booksTable).values(parsed.data);
+    await db.$client.end();
+
     return c.json({ message: "Successful" }, 201);
   }
   catch (error) {
+    await db.$client.end();
     return c.json({ error: "Internal Server Error" }, 500);
   }
 }
@@ -100,12 +108,15 @@ export async function updateBook(c: Context<Ctx, never, {}>) {
     return c.json({ error: parsed.error.message }, 400);
   }
 
-  const db = c.get("db");
+  const db = drizzle(c.env.HYPERDRIVE.connectionString);
   try {
     await db.update(booksTable).set(parsed.data).where(eq(booksTable.id, id));
+    await db.$client.end();
+
     return c.json({ message: "Successful" });
   }
   catch (error) {
+    await db.$client.end();
     return c.json({ error: "Internal Server Error" }, 500);
   }
 }
@@ -119,12 +130,15 @@ export async function deleteBook(c: Context<Ctx, never, {}>) {
     return c.json({ error: "Invalid ID" }, 400);
   }
 
-  const db = c.get("db");
+  const db = drizzle(c.env.HYPERDRIVE.connectionString);
   try {
     await db.delete(booksTable).where(eq(booksTable.id, id));
+    await db.$client.end();
+
     return c.json({ message: "Successful" });
   }
   catch (error) {
+    await db.$client.end();
     return c.json({ error: "Internal Server Error" }, 500);
   }
 }
