@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { Hyperdrive } from '@cloudflare/workers-types'
 import * as Pg from './pg'
+import * as Drizzle from './drz_w_redis'
 
 const fn = new Hono<{
   Bindings: {
@@ -8,11 +9,11 @@ const fn = new Hono<{
   }
 }>()
 
-fn.get("/api/users", Pg.listUsers)
-  .get("/api/users/:id", Pg.getUserById)
-  .post("/api/users", Pg.createUser)
-  .put("/api/users/:id", Pg.updateUser)
-  .delete("/api/users/:id", Pg.deleteUser)
+fn.get("/api/users", Drizzle.listUsers)
+  .get("/api/users/:id", Drizzle.getUserById)
+  .post("/api/users", Drizzle.createUser)
+  .put("/api/users/:id", Drizzle.updateUser)
+  .delete("/api/users/:id", Drizzle.deleteUser)
 
 fn.get("/api/books", Pg.listBooks)
   .get("/api/books/:id", Pg.getBookById)

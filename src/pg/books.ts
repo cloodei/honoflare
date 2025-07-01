@@ -1,11 +1,12 @@
 import { Context } from "hono";
 import { pgClient } from "../db/db";
 import { z } from "zod/v4";
+import { Hyperdrive } from "@cloudflare/workers-types";
 
 /**
  * List all books
 */
-export async function listBooks(c: Context) {
+export async function listBooks(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive } }>) {
   const sql = await pgClient(c.env.HYPERDRIVE.connectionString);
   const res = await sql.query('SELECT * FROM "BOOKS"');
 
@@ -16,7 +17,7 @@ export async function listBooks(c: Context) {
 /**
  * Get a book by ID, return an empty object if not found
 */
-export async function getBookById(c: Context) {
+export async function getBookById(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive } }>) {
   const sql = await pgClient(c.env.HYPERDRIVE.connectionString);
   const id = Number(c.req.param("id"));
 
@@ -33,7 +34,7 @@ export async function getBookById(c: Context) {
 /**
  * Create a new book
 */
-export async function createBook(c: Context) {
+export async function createBook(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive } }>) {
   const [sql, body] = await Promise.all([
     pgClient(c.env.HYPERDRIVE.connectionString),
     c.req.json()
@@ -71,7 +72,7 @@ export async function createBook(c: Context) {
 /**
  * Update a book by ID
 */
-export async function updateBook(c: Context) {
+export async function updateBook(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive } }>) {
   const [sql, body] = await Promise.all([
     pgClient(c.env.HYPERDRIVE.connectionString),
     c.req.json()
@@ -114,7 +115,7 @@ export async function updateBook(c: Context) {
 /**
  * Delete a book by ID
 */
-export async function deleteBook(c: Context) {
+export async function deleteBook(c: Context<{ Bindings: { HYPERDRIVE: Hyperdrive } }>) {
   const sql = await pgClient(c.env.HYPERDRIVE.connectionString);
   const id = Number(c.req.param("id"));
 
