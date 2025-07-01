@@ -53,7 +53,7 @@ export async function getUserById(c: Context<{ Bindings: { HYPERDRIVE: Hyperdriv
     trang_thai: usersTable.trang_thai,
     created_at: usersTable.created_at,
     updated_at: usersTable.updated_at,
-  }).from(usersTable).where(eq(usersTable.id, id)))[0]);
+  }).from(usersTable).where(eq(usersTable.id, id)))[0] || {});
 
   await Promise.all([
     sql.end(),
