@@ -1,31 +1,29 @@
 import { Hono } from 'hono'
 import { Hyperdrive } from '@cloudflare/workers-types'
-import * as users from './drz/users'
-import * as books from './drz/books'
-import * as borrow from './drz/borrow'
+import * as Pg from './pg'
 
-const app = new Hono<{
+const fn = new Hono<{
   Bindings: {
     HYPERDRIVE: Hyperdrive
   }
 }>()
 
-app.get("/api/users", users.listUsers)
-app.get("/api/users/:id", users.getUserById)
-app.post("/api/users", users.createUser)
-app.put("/api/users/:id", users.updateUser)
-app.delete("/api/users/:id", users.deleteUser)
+fn.get("/api/users", Pg.listUsers)
+  .get("/api/users/:id", Pg.getUserById)
+  .post("/api/users", Pg.createUser)
+  .put("/api/users/:id", Pg.updateUser)
+  .delete("/api/users/:id", Pg.deleteUser)
 
-app.get("/api/books", books.listBooks)
-app.get("/api/books/:id", books.getBookById)
-app.post("/api/books", books.createBook)
-app.put("/api/books/:id", books.updateBook)
-app.delete("/api/books/:id", books.deleteBook)
+fn.get("/api/books", Pg.listBooks)
+  .get("/api/books/:id", Pg.getBookById)
+  .post("/api/books", Pg.createBook)
+  .put("/api/books/:id", Pg.updateBook)
+  .delete("/api/books/:id", Pg.deleteBook)
 
-app.get("/api/borrow", borrow.listBorrows)
-app.get("/api/borrow/books/:userId", borrow.getBorrowByUserId)
-app.get("/api/borrow/users/:bookId", borrow.getBorrowByBookId)
-app.get("/api/borrow/:userId/:bookId", borrow.getBorrowById)
-app.post("/api/borrow", borrow.createBorrow)
+fn.get("/api/borrow", Pg.listBorrows)
+  .get("/api/borrow/books/:userId", Pg.getBorrowByUserId)
+  .get("/api/borrow/users/:bookId", Pg.getBorrowByBookId)
+  .get("/api/borrow/:userId/:bookId", Pg.getBorrowById)
+  .post("/api/borrow", Pg.createBorrow)
 
-export default app
+export default fn
